@@ -31,14 +31,19 @@ echo " "
 echo " "
 if [ -z "$1" ]
   then
-    read -p "Enter the WG0 Server Tunnel IP address, [ENTER] set to default: 10.50.0.1: " SERVER_IP
+    read -p "Enter the WG0 Server Tunnel IP address, [ENTER] set to default: 172.50.0.1: " SERVER_IP
     if [ -z $SERVER_IP ]
-      then SERVER_IP="10.50.0.1"
+      then SERVER_IP="172.50.0.1"
     fi
   else SERVER_IP=$1
 fi
 echo $SERVER_IP > ./Server_IP.var
 echo $SERVER_IP | grep -o -E '([0-9]+\.){3}' > ./vpn_subnet.var
+SERVER_IP=$(cat Server_IP.var)
+str="$SERVER_IP"
+AllowedIP=$(awk -F"." '{print $1"."0"."0".0/8"}'<<<$str)
+echo $AllowedIP >./AllowedIP.var
+                   
 
 
 DNS=$"8.8.8.8"
@@ -52,7 +57,7 @@ cat ./endpoint.var | sed -e "s/:/ /" | while read SERVER_EXTERNAL_IP SERVER_EXTE
 do
 cat > ./wg0.conf.def << EOF
 [Interface]
-Address = $SERVER_IP
+Address = $SERVER_IP/24
 SaveConfig = false
 PrivateKey = $SERVER_PRIVKEY
 ListenPort = $SERVER_EXTERNAL_PORT
@@ -104,13 +109,13 @@ cat > /etc/wireguard/clients/$USERNAME/$USERNAME.conf << EOF
 [Interface]
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_IP
-DNS = $DNS
 ListenPort = 443
+MTU = 1400
 
 [Peer]
 PublicKey = $SERVER_PUBLIC_KEY
 PresharedKey = $CLIENT_PRESHARED_KEY
-AllowedIPs = $SERVER_IP, 224.0.0.5, 224.0.0.6
+AllowedIPs = $AllowedIP, 224.0.0.5, 224.0.0.6
 Endpoint = $ENDPOINT
 PersistentKeepalive=25
 EOF
@@ -121,7 +126,7 @@ cat >> /etc/wireguard/wg0.conf << EOF
 [Peer]
 PublicKey = $CLIENT_PUBLIC_KEY
 PresharedKey = $CLIENT_PRESHARED_KEY
-AllowedIPs = $CLIENT_IP
+AllowedIPs = $AllowedIP
 EOF
 
 # Restart Wireguard
