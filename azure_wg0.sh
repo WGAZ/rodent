@@ -61,6 +61,7 @@ Address = $SERVER_IP/24
 SaveConfig = false
 PrivateKey = $SERVER_PRIVKEY
 ListenPort = $SERVER_EXTERNAL_PORT
+MTU = 1400
 PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
 PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
 EOF
@@ -126,7 +127,7 @@ cat >> /etc/wireguard/wg0.conf << EOF
 [Peer]
 PublicKey = $CLIENT_PUBLIC_KEY
 PresharedKey = $CLIENT_PRESHARED_KEY
-AllowedIPs = $AllowedIP
+AllowedIPs = $AllowedIP, 224.0.0.5, 224.0.0.6
 EOF
 
 # Restart Wireguard
