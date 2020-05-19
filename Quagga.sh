@@ -23,7 +23,6 @@ cat >> /etc/quagga/ospfd.conf << EOF
 hostname ospf_s1
 log file /var/log/quagga/ospfd.log
 router ospf
- ospf router-id 1.1.1.1
  redistribute connected
  network $SERVER_IP/24 area 0.0.0.0
 access-list localhost permit 127.0.0.1/32
