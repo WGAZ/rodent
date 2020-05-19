@@ -1,3 +1,5 @@
+wg-quick up wg0
+
 cd /etc/wireguard/clients2/CLIENT
 qrencode -t ansiutf8 < ./CLIENT.conf
 
