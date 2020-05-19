@@ -1,5 +1,14 @@
 #!/bin/bash
 
+cd /etc/netplan
+
+cat >> ./50-cloud-init.yaml << EOF
+        eth1:
+            dhcp4: true
+EOF
+
+netplan apply
+
 apt install software-properties-common -y
 add-apt-repository ppa:wireguard/wireguard -y
 apt update
@@ -23,4 +32,3 @@ chmod 777 *
 
 cd /etc/wireguard
 systemctl enable wg-quick@wg0
-systemctl start wg-quick@wg0
