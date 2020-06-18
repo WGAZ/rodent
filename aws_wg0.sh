@@ -1,8 +1,14 @@
 #!/bin/bash
 
+apt install net-tools
 cd /etc/netplan
 
-cat >> ./50-cloud-init.yaml << EOF
+cat > ./50-cloud-init.yaml << EOF
+network:
+    ethernets:
+        eth0:
+            dhcp4: true
+            dhcp6: false
         eth1:
             dhcp4: true
 EOF
